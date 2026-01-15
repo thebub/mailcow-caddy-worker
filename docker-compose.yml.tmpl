@@ -1,0 +1,25 @@
+services:
+  cert-sync:
+    build: .
+    container_name: caddy-cert-sync
+    environment:
+      DOMAIN: mail.example.com
+      CADDY_ACME_BASE: /caddy_acme
+      CADDY_ACME_CA_DIR: acme-v02.api.letsencrypt.org-directory
+      DEST_CERT_DIR: /dest_certs
+      DEST_CERT_NAME: cert.pem
+      DEST_KEY_NAME: key.pem
+      RESTART_CONTAINERS: >
+        postfix-mailcow
+        dovecot-mailcow
+        nginx-mailcow
+      CHECK_INTERVAL: 1800
+    volumes:
+      - caddy_certs:/caddy_acme:ro
+      - mailcow_certs:/dest_certs
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  caddy_certs:
+  mailcow_certs:
